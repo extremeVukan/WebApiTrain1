@@ -17,18 +17,7 @@ namespace WebApplication1.Controllers
             return Ok(students);
         }
 
-        // 获取单个学生
-        [HttpGet("{id}")]
-        public ActionResult<Student> GetStudent(int id)
-        {
-            var students = ReadStudentsFromFile();
-            var student = students.FirstOrDefault(s => s.ID == id);
-            if (student == null)
-            {
-                return NotFound();
-            }
-            return Ok(student);
-        }
+        
 
         // 添加学生
         [HttpPost]
@@ -43,8 +32,18 @@ namespace WebApplication1.Controllers
             WriteStudentsToFile(students);
             return CreatedAtAction(nameof(GetStudent), new { id = student.ID }, student);
         }
+        [HttpGet("{id}")]
+        public ActionResult<Student> GetStudent(int id)
+        {
+            var students = ReadStudentsFromFile();
+            var student = students.FirstOrDefault(s => s.ID == id);
+            if (student == null)
+            {
+                return NotFound($"学生 ID {id} 不存在。");
+            }
+            return Ok(student);
+        }
 
-        // 更新学生信息
         [HttpPut("{id}")]
         public IActionResult UpdateStudent(int id, Student updatedStudent)
         {
@@ -52,10 +51,9 @@ namespace WebApplication1.Controllers
             var student = students.FirstOrDefault(s => s.ID == id);
             if (student == null)
             {
-                return NotFound();
+                return NotFound($"无法更新，学生 ID {id} 不存在。");
             }
 
-            // 更新学生信息
             student.Name = updatedStudent.Name;
             student.Age = updatedStudent.Age;
             student.Class = updatedStudent.Class;
@@ -64,7 +62,6 @@ namespace WebApplication1.Controllers
             return NoContent();
         }
 
-        // 删除学生
         [HttpDelete("{id}")]
         public IActionResult DeleteStudent(int id)
         {
@@ -72,13 +69,16 @@ namespace WebApplication1.Controllers
             var student = students.FirstOrDefault(s => s.ID == id);
             if (student == null)
             {
-                return NotFound();
+                return NotFound($"无法删除，学生 ID {id} 不存在。");
             }
 
             students.Remove(student);
             WriteStudentsToFile(students);
             return NoContent();
         }
+
+
+
 
         // 从文件读取学生数据
         private List<Student> ReadStudentsFromFile()

@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -21,27 +21,27 @@ namespace WebApplication1.Controllers
 
         static async Task Main(string[] args)
         {
-            client.BaseAddress = new Uri("http://localhost:5000/api/Student1");
+            client.BaseAddress = new Uri("https://localhost:7101/api/Student/");
 
-            Console.WriteLine("1. »ñÈ¡ËùÓĞÑ§ÉúĞÅÏ¢");
+            Console.WriteLine("1. è·å–æ‰€æœ‰å­¦ç”Ÿä¿¡æ¯");
             await GetAllStudents();
 
-            Console.WriteLine("\n2. Ìí¼ÓĞÂÑ§Éú");
-            await AddStudent(new Student { Name = "ÕÅÈı", Age = 20, Class = "¼ÆËã»ú¿ÆÑ§" });
+            Console.WriteLine("\n2. æ·»åŠ æ–°å­¦ç”Ÿ");
+            await AddStudent(new Student { Name = "å¼ ä¸‰", Age = 20, Class = "è®¡ç®—æœºç§‘å­¦" });
 
-            Console.WriteLine("\n3. »ñÈ¡µ¥¸öÑ§ÉúĞÅÏ¢");
+            Console.WriteLine("\n3. è·å–å•ä¸ªå­¦ç”Ÿä¿¡æ¯");
             await GetStudentById(1);
 
-            Console.WriteLine("\n4. ¸üĞÂÑ§ÉúĞÅÏ¢");
-            await UpdateStudent(1, new Student { ID = 1, Name = "ÀîËÄ", Age = 21, Class = "Èí¼ş¹¤³Ì" });
+            Console.WriteLine("\n4. æ›´æ–°å­¦ç”Ÿä¿¡æ¯");
+            await UpdateStudent(1, new Student { ID = 1, Name = "æå››", Age = 21, Class = "è½¯ä»¶å·¥ç¨‹" });
 
-            Console.WriteLine("\n5. É¾³ıÑ§Éú");
-            await DeleteStudent(1);
+            Console.WriteLine("\n5. åˆ é™¤å­¦ç”Ÿ");
+            await DeleteStudent(4);
 
-            Console.WriteLine("\n²Ù×÷Íê³É£¡");
+            Console.WriteLine("\næ“ä½œå®Œæˆï¼");
         }
 
-        // »ñÈ¡ËùÓĞÑ§Éú
+        // è·å–æ‰€æœ‰å­¦ç”Ÿ
         private static async Task GetAllStudents()
         {
             var response = await client.GetAsync("");
@@ -56,14 +56,14 @@ namespace WebApplication1.Controllers
             }
             else
             {
-                Console.WriteLine($"»ñÈ¡Ñ§ÉúÊ§°Ü: {response.StatusCode}");
+                Console.WriteLine($"è·å–å­¦ç”Ÿå¤±è´¥: {response.StatusCode}");
             }
         }
 
-        // »ñÈ¡µ¥¸öÑ§Éú
+        // è·å–å•ä¸ªå­¦ç”Ÿ
         private static async Task GetStudentById(int id)
         {
-            var response = await client.GetAsync($"/{id}");
+            var response = await client.GetAsync($"{id}");
             if (response.IsSuccessStatusCode)
             {
                 var json = await response.Content.ReadAsStringAsync();
@@ -72,11 +72,13 @@ namespace WebApplication1.Controllers
             }
             else
             {
-                Console.WriteLine($"»ñÈ¡Ñ§ÉúÊ§°Ü: {response.StatusCode}");
+                var error = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"è·å–å­¦ç”Ÿå¤±è´¥: {response.StatusCode}, é”™è¯¯ä¿¡æ¯: {error}");
             }
         }
 
-        // Ìí¼ÓÑ§Éú
+
+        // æ·»åŠ å­¦ç”Ÿ
         private static async Task AddStudent(Student student)
         {
             var json = JsonSerializer.Serialize(student);
@@ -84,42 +86,71 @@ namespace WebApplication1.Controllers
             var response = await client.PostAsync("", content);
             if (response.IsSuccessStatusCode)
             {
-                Console.WriteLine("Ñ§ÉúÌí¼Ó³É¹¦£¡");
+                Console.WriteLine("å­¦ç”Ÿæ·»åŠ æˆåŠŸï¼");
             }
             else
             {
-                Console.WriteLine($"Ìí¼ÓÑ§ÉúÊ§°Ü: {response.StatusCode}");
+                Console.WriteLine($"æ·»åŠ å­¦ç”Ÿå¤±è´¥: {response.StatusCode}");
             }
         }
 
-        // ¸üĞÂÑ§Éú
+        // æ›´æ–°å­¦ç”Ÿ
         private static async Task UpdateStudent(int id, Student student)
         {
+            if (!await StudentExists(id))
+            {
+                Console.WriteLine($"æ›´æ–°å¤±è´¥ï¼Œå­¦ç”Ÿ ID {id} ä¸å­˜åœ¨ã€‚");
+                return;
+            }
+
             var json = JsonSerializer.Serialize(student);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await client.PutAsync($"/{id}", content);
+            var response = await client.PutAsync($"{id}", content);
             if (response.IsSuccessStatusCode)
             {
-                Console.WriteLine("Ñ§Éú¸üĞÂ³É¹¦£¡");
+                Console.WriteLine("å­¦ç”Ÿæ›´æ–°æˆåŠŸï¼");
             }
             else
             {
-                Console.WriteLine($"¸üĞÂÑ§ÉúÊ§°Ü: {response.StatusCode}");
+                var error = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"æ›´æ–°å­¦ç”Ÿå¤±è´¥: {response.StatusCode}, é”™è¯¯ä¿¡æ¯: {error}");
             }
         }
 
-        // É¾³ıÑ§Éú
+
+        // åˆ é™¤å­¦ç”Ÿ
         private static async Task DeleteStudent(int id)
         {
-            var response = await client.DeleteAsync($"/{id}");
+            if (!await StudentExists(id))
+            {
+                Console.WriteLine($"åˆ é™¤å¤±è´¥ï¼Œå­¦ç”Ÿ ID {id} ä¸å­˜åœ¨ã€‚");
+                return;
+            }
+
+            var response = await client.DeleteAsync($"{id}");
             if (response.IsSuccessStatusCode)
             {
-                Console.WriteLine("Ñ§ÉúÉ¾³ı³É¹¦£¡");
+                Console.WriteLine("å­¦ç”Ÿåˆ é™¤æˆåŠŸï¼");
             }
             else
             {
-                Console.WriteLine($"É¾³ıÑ§ÉúÊ§°Ü: {response.StatusCode}");
+                var error = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"åˆ é™¤å­¦ç”Ÿå¤±è´¥: {response.StatusCode}, é”™è¯¯ä¿¡æ¯: {error}");
             }
         }
+
+
+        // æ£€æŸ¥å­¦ç”Ÿæ˜¯å¦å­˜åœ¨
+        private static async Task<bool> StudentExists(int id)
+        {
+            var response = await client.GetAsync($"{id}");
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"æ£€æŸ¥å­¦ç”Ÿå¤±è´¥: {response.StatusCode}, é”™è¯¯ä¿¡æ¯: {error}");
+            }
+            return response.IsSuccessStatusCode;
+        }
+
     }
 }
